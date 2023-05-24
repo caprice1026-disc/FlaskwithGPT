@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, send_from_directory
 import flask
 import json
 import os
@@ -14,6 +14,11 @@ SYSTEM_MESSAGE = [{'role': 'system', 'content': '敬語を使うのをやめて�
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+    'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route("/record", methods=["POST"])
 
