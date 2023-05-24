@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIとおしゃべりしよう!</title>
+</head>
+<body>
+    <h1>AIとおしゃべりしよう!</h1>
+    <div></div>
+    <button id="record">録音開始</button>
+    <button id="stop">録音停止</button>
+    <script>
+        let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = new SpeechRecognition();
+
+        let transcript = '';
+
+        recognition.onresult = function(event) {
+            transcript = event.results[0][0].transcript;
+        };
+
+        var recordButton = document.getElementById("record");
+        recordButton.addEventListener("click", function() {
+            recognition.start();
+        });
+
+        var stopButton = document.getElementById("stop");
+        stopButton.addEventListener("click", function() {
+            recognition.stop();
+
+            // Send transcript to server
+            fetch('/record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ transcript: transcript })
+            })
+            .then(response => response.arrayBuffer())
+            .then(buffer => {
+                // Play the response from the server
+                var audio = new Audio(URL.createObjectURL(new Blob([buffer], { type: 'audio/wav' })));
+                audio.play();
+            });
+        });
+    </script>
+</body>
+</html>
